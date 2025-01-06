@@ -27,7 +27,7 @@
     },
     "include": [
         "./src/**/*"
-    ],
+, "waitsrc/elements", "waitsrc/expressionUtils", "waitsrc/statements", "waitsrc/statementUtils"    ],
     "exclude": [
         "node_modules",
         "dist"
