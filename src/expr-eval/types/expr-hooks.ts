@@ -57,8 +57,10 @@ export type Vars = {
 }
 
 export type ExpressionArgs = {
+    // 사용자 지정
     vars: Vars;
     builtInVars : Vars;
+    // 스코프
     currentScope? : Vars;
     expressionEventHooks : Partial<ExpressionEventHooks>;
 }
