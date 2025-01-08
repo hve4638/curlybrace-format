@@ -1,4 +1,4 @@
-import { DirectiveKeywords, Fragment, FragmentType } from './types';
+import { DirectiveKeywords, Fragment, FragmentType } from '../types/fragment';
 
 export const RE_DIRECTIVE_MARKER = /(\{\{::.*?\}\})/ms
 export const RE_DIRECTIVE = /\{\{\s*::\s*(\S+)(?:\s+(.*?))?\s*\}\}/ms
@@ -98,7 +98,7 @@ class FragmentAdder {
     }
 
     addDirective(directiveMatch: RegExpMatchArray) {
-        const keyword = directiveMatch[1] as string;
+        const keyword = directiveMatch[1]?.toUpperCase() as string;
         const field = directiveMatch[2] as string;
         
         if (keyword in DirectiveKeywords) {

@@ -1,6 +1,7 @@
 export { default as tokenize } from './tokenize';
 export { default as transformToken } from './transformToken';
 export { default as parseAST } from './parseAST';
+export { default as makeExpression } from './makeExpression';
 
 export type { ExpressionType } from './types/expressions';
 

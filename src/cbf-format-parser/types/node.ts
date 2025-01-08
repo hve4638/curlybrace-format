@@ -1,9 +1,18 @@
-import { AnyExpression } from '../../expr-parse/types/expressions';
-import { Fragment } from '../template-splitter';
+import { AnyExpression, EvaluatableExpression } from '../../expr-parse/types/expressions';
+import { Fragment } from '../types/fragment';
 import { FragmentType } from './fragment';
 
-export type Node = {
-    node_type : 'single';
+export const NodeType = {
+    SINGLE : 'single',
+    SEQUENCE : 'sequence',
+    ACTION : 'action'
+} as const;
+type NodeType = typeof NodeType[keyof typeof NodeType];
+
+export type Node = SingleNode | Action | SequenceNode;
+
+export type SingleNode = {
+    node_type : typeof NodeType.SINGLE;
     fragment : Fragment;
 } & ({
     type : typeof FragmentType.TEXT;
@@ -30,13 +39,14 @@ export const ActionType = {
 } as const;
 export type ActionType = typeof ActionType[keyof typeof ActionType];
 export type Action = {
-    node_type : 'action';
+    node_type : typeof NodeType.ACTION;
+} & ({
     type : typeof ActionType.JUMP,
     jump_to : number;
 } | {
     type : typeof ActionType.CONDITIONAL_JUMP,
     fragment : Fragment;
-    expression : string;
+    expression : EvaluatableExpression;
     not : boolean;
     jump_to : number;
 } | {
@@ -48,15 +58,15 @@ export type Action = {
 } | {
     type : typeof ActionType.ITERATE_INIT,
     fragment : Fragment;
-    expression : string;
+    expression : EvaluatableExpression;
     iterator_variable : string;
 } | {
     type : typeof ActionType.ITERATE_NEXT
     iterator_variable : string;
     result_variable : string;
-}
+});
 
 export type SequenceNode = {
-    node_type : 'sequence';
-    fragments : (Node|Action)[];
+    node_type : typeof NodeType.SEQUENCE;
+    nodes : (Node|Action)[];
 }
