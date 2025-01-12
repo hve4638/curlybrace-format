@@ -1,4 +1,5 @@
-import TemplateSplitter, { DirectiveKeywords, Fragment, FragmentType } from '../';
+import { Fragment, FragmentType, DirectiveKeywords } from '../../types/fragment';
+import TemplateSplitter from '../';
 
 describe('TemplateSplite', () => {
     const splitter = new TemplateSplitter();
@@ -39,9 +40,29 @@ describe('TemplateSplite', () => {
                 type: FragmentType.DIRECTIVE,
                 full_text: '{{:: ROLE user}}',
                 keyword: DirectiveKeywords.ROLE,
+                keyword_left: '{{:: ',
                 field: 'user',
+                field_left: '{{:: ROLE ',
                 position: 0,
                 size: 16,
+            }
+        ]
+        expect(actual).toEqual(expected);
+    });
+
+    test('directive : endif', () => {
+        const template = '{{::ENDIF}}';
+        const actual = splitter.spliteTemplate(template);
+        const expected:Fragment[] = [
+            {
+                type: FragmentType.DIRECTIVE,
+                full_text: '{{::ENDIF}}',
+                keyword: DirectiveKeywords.ENDIF,
+                keyword_left: '{{::',
+                field: '',
+                field_left: '{{::ENDIF',
+                position: 0,
+                size: 11,
             }
         ]
         expect(actual).toEqual(expected);
@@ -55,6 +76,7 @@ describe('TemplateSplite', () => {
                 type: FragmentType.EXPRESSION,
                 full_text: '{{ 1 + 2 * 3 }}',
                 expression_text : '1 + 2 * 3',
+                expression_text_left : '{{ ',
                 position: 0,
                 size: 15,
             }
@@ -70,7 +92,9 @@ describe('TemplateSplite', () => {
                 type: FragmentType.DIRECTIVE,
                 full_text: '{{:: ROLE user}}',
                 keyword: DirectiveKeywords.ROLE,
+                keyword_left: '{{:: ',
                 field: 'user',
+                field_left: '{{:: ROLE ',
                 position: 0,
                 size: 16,
             },
@@ -84,6 +108,7 @@ describe('TemplateSplite', () => {
                 type: FragmentType.EXPRESSION,
                 full_text: '{{ num }}',
                 expression_text : 'num',
+                expression_text_left : '{{ ',
                 position: 23,
                 size: 9,
             }

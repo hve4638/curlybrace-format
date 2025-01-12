@@ -1,9 +1,9 @@
 import { CBFFail, CBFFailHint } from '../../errors';
-import { CBF_ERROR_TYPE } from '../../types';
+import { CBFErrorType } from '../../types';
 import { FailExpression } from './types';
 
 class EvaluateFail extends CBFFail {
-    constructor(message: string, type:CBF_ERROR_TYPE, expr: FailExpression) {
+    constructor(message: string, type:CBFErrorType, expr: FailExpression) {
         let text:string;
         try {
             text = expr.value.toString();

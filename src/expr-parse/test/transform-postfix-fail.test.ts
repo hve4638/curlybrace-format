@@ -1,5 +1,5 @@
 import { tokenize, transformToken } from '../';
-import { CBF_ERROR_TYPE } from '../../types';
+import { CBFErrorType } from '../../types';
 import { expectCBFFail } from './utils';
 
 function transform(expressionText:string) {
@@ -15,7 +15,7 @@ describe('SyntaxTransform Test', () => {
         catch (e: any) {
             expectCBFFail(
                 e,
-                CBF_ERROR_TYPE.MULTIPLE_EXPRESSION,
+                CBFErrorType.MULTIPLE_EXPRESSION,
                 {
                     text: ',',
                     positionBegin: 2,

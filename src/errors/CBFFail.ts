@@ -1,4 +1,4 @@
-import {CBF_ERROR_TYPE} from '../types';
+import {CBFErrorType} from '../types';
 
 export type CBFFailHint = {
     positionBegin:number;
@@ -8,9 +8,9 @@ export type CBFFailHint = {
 
 class CBFFail extends Error {
     #hint:CBFFailHint;
-    #type:CBF_ERROR_TYPE;
+    #type:CBFErrorType;
 
-    constructor(message:string, errorType:CBF_ERROR_TYPE, hint:CBFFailHint) {
+    constructor(message:string, errorType:CBFErrorType, hint:CBFFailHint) {
         super(message);
         this.name = 'CBFFailError';
         this.#type = errorType;

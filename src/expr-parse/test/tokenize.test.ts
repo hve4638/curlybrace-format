@@ -31,7 +31,18 @@ describe('Tokenizer Test', () => {
             token('NUMBER', '1.5'),
         ]
         expect(actual).toEqual(expected);
-    })
+    });
+    test('operator 2', ()=>{
+        const actual = tokenize('17 % 3');
+        const expected = [
+            token('NUMBER', '17'),
+            token('SPACE', ' '),
+            token('OPERATOR', '%'),
+            token('SPACE', ' '),
+            token('NUMBER', '3'),
+        ]
+        expect(actual).toEqual(expected);
+    });
     test('name', ()=>{
         const actual = tokenize('variable');
         const expected = [

@@ -11,8 +11,8 @@ export const ExpressionTokenType = {
 export const ExpressionType = ExpressionTokenType;
 
 type AnyExpression = EvaluatableExpression | UnevaluatableExpression;
-type EvaluatableExpression = CallExpression | LiteralExpression |  ObjectExpression;
-type UnevaluatableExpression = IdentifierExpression | ParamExpression;
+type EvaluatableExpression = CallExpression | LiteralExpression |  ObjectExpression | IdentifierExpression;
+type UnevaluatableExpression = ParamExpression;
 
 interface CallExpression {
     readonly type : 'CALL';

@@ -28,11 +28,14 @@ export type Fragment = ExpressionFragment | DirectiveFragment | TextFragment;
 export type ExpressionFragment = FragmentRequired &{
     type : typeof FragmentType.EXPRESSION;
     expression_text : string;
+    expression_text_left : string;
 }
 export type DirectiveFragment = FragmentRequired & {
     type : typeof FragmentType.DIRECTIVE;
     keyword : DirectiveKeywords;
     field : string;
+    keyword_left : string;
+    field_left : string;
 }
 export type TextFragment = FragmentRequired & {
     type : typeof FragmentType.TEXT;

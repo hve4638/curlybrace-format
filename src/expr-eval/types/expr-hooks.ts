@@ -5,28 +5,28 @@ type LiteralResult = LiteralExpression | string | number | boolean;
 type ComparisonResult = LiteralExpression | boolean;
 
 export type ExpressionEventHooks = {
-    'add' : (a:EvaluatableExpression, b:EvaluatableExpression)=>AnyResult;
-    'subtract' : (a:EvaluatableExpression, b:EvaluatableExpression)=>AnyResult;
-    'multiply' : (a:EvaluatableExpression, b:EvaluatableExpression)=>AnyResult;
-    'divide' : (a:EvaluatableExpression, b:EvaluatableExpression)=>AnyResult;
-    'modulo' : (a:EvaluatableExpression, b:EvaluatableExpression)=>AnyResult;
+    'add' : (a:unknown, b:unknown)=>AnyResult;
+    'subtract' : (a:unknown, b:unknown)=>AnyResult;
+    'multiply' : (a:unknown, b:unknown)=>AnyResult;
+    'divide' : (a:unknown, b:unknown)=>AnyResult;
+    'modulo' : (a:unknown, b:unknown)=>AnyResult;
 
-    'greaterOrEqual' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
-    'lessOrEqual' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
-    'greater' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
-    'less' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
-    'notEqual' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
-    'equal' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
-    'logicalAnd' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
-    'logicalOr' : (a:EvaluatableExpression, b:EvaluatableExpression)=>ComparisonResult;
+    'greaterOrEqual' : (a:unknown, b:unknown)=>ComparisonResult;
+    'lessOrEqual' : (a:unknown, b:unknown)=>ComparisonResult;
+    'greater' : (a:unknown, b:unknown)=>ComparisonResult;
+    'less' : (a:unknown, b:unknown)=>ComparisonResult;
+    'notEqual' : (a:unknown, b:unknown)=>ComparisonResult;
+    'equal' : (a:unknown, b:unknown)=>ComparisonResult;
+    'logicalAnd' : (a:unknown, b:unknown)=>ComparisonResult;
+    'logicalOr' : (a:unknown, b:unknown)=>ComparisonResult;
 
-    'access' : (expr:EvaluatableExpression, field:EvaluatableExpression)=>AnyResult;
-    'indexor' : (expr:EvaluatableExpression, index:LiteralExpression)=>AnyResult;
-    'call' : (expr:EvaluatableExpression, args:EvaluatableExpression[])=>AnyResult;
+    'access' : (expr:unknown, field:any)=>AnyResult;
+    'indexor' : (expr:unknown, index:string|number)=>AnyResult;
+    'call' : (expr:unknown, args:unknown[])=>AnyResult;
     
-    'objectify' : (obj:any)=>any;
-    'stringify' : (expr:EvaluatableExpression)=>string;
-    'iterate' : (expr:EvaluatableExpression)=>Iterable<any>;
+    'objectify' : (obj:unknown)=>unknown;
+    'stringify' : (expr:unknown)=>string;
+    'iterate' : (expr:unknown)=>Iterator<unknown>;
 }
 
 export const OPERATOR_HOOKS = {
@@ -60,7 +60,7 @@ export type ExpressionArgs = {
     // 사용자 지정
     vars: Vars;
     builtInVars : Vars;
-    // 스코프
-    currentScope? : Vars;
     expressionEventHooks : Partial<ExpressionEventHooks>;
+    
+    scope? : Vars;
 }

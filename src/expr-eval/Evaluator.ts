@@ -22,58 +22,57 @@ import { Tokens } from '../expr-parse/Tokens';
 class Evaluator {
     #vars:Vars;
     #builtInVars:Vars;
-    #currentScope:Vars;
+    #scope:Vars;
     #expressionEventHooks:Partial<ExpressionEventHooks>;
     
     constructor(args:ExpressionArgs) {
-        const {expressionEventHooks, vars, builtInVars, currentScope} = args;
+        const {expressionEventHooks, vars, builtInVars, scope} = args;
         this.#expressionEventHooks = expressionEventHooks ?? {};
         this.#vars = vars ?? {};
-        this.#currentScope = currentScope ?? {};
+        this.#scope = scope ?? {};
         this.#builtInVars = builtInVars ?? {};
     }
 
-    evaluateAndStringify(expressionAST:EvaluatableExpression) {
-        const result = this.#evaluateExpr(expressionAST) as EvaluatableExpression;
+    evaluate(expressionAST:EvaluatableExpression):any {
+        const expr = this.#evaluateExpr(expressionAST);
 
-        if (this.#isLiteral(result)) {
-            return result.value.toString();
+        return this.#getRawValue(expr);
+    }
+
+    evaluateAndStringify(expressionAST:EvaluatableExpression):string {
+        const expr = this.#evaluateExpr(expressionAST) as EvaluatableExpression;
+
+        if (this.#isLiteral(expr)) {
+            return expr.value.toString();
         }
         else {
+            const item = this.#getRawValue(expr);
+            
             const hookName = OPERATOR_HOOKS.STRINGIFY;
             const hook = this.#expressionEventHooks[hookName];
             if (hook) {
-                return hook(result);
+                return hook(item);
             }
             else {
-                throw new NoHookError(hookName, result);
+                throw new NoHookError(hookName, expr);
             }
         }
     }
 
-    evaluate(expressionAST:EvaluatableExpression) {
-        const result = this.#evaluateExpr(expressionAST);
-
-        if (this.#isLiteral(result)) {
-            return result.value;
-        }
-        else {
-            return result;
-        }
-    }
-
-    evaluateAndIterate(expressionAST:EvaluatableExpression) {
+    evaluateAndIterate(expressionAST:EvaluatableExpression):Iterator<any> {
         const expr = this.#evaluateExpr(expressionAST) as EvaluatableExpression;
-        const hookName = OPERATOR_HOOKS['ITERATE'];
+        const hookName = OPERATOR_HOOKS.ITERATE;
 
         if (this.#isLiteral(expr)) {
-            throw new OperatorNotSupportedError('iterate', expr);
+            throw new OperatorNotSupportedError(hookName, expr);
         }
         else {
+            const item = this.#getRawValue(expr);
+            
             const hook = this.#expressionEventHooks[hookName];
             if (hook) {
                 try {
-                    return hook(expr);
+                    return hook(item);
                 }
                 catch(e:any) {
                     throw new HookError(e, expr);
@@ -108,18 +107,18 @@ class Evaluator {
                 data = this.#builtInVars[sliced];
             }
             else {
-                throw new IdentifierResolveFail('Invalid built-in variable', expr);
+                throw new IdentifierResolveFail(`Invalid built-in variable '${sliced}'`, expr);
             }
         }
         else {
-            if (identifier in this.#currentScope) {
-                data = this.#currentScope[identifier];
+            if (identifier in this.#scope) {
+                data = this.#scope[identifier];
             }
             else if (identifier in this.#vars) {
                 data = this.#vars[identifier];
             }
             else {
-                throw new IdentifierResolveFail('Variable is not defined', expr);
+                throw new IdentifierResolveFail(`Variable is not defined '${identifier}'`, expr);
             }
         }
         switch(typeof data) {
@@ -133,6 +132,7 @@ class Evaluator {
                     size : expr.size
                 };
             case 'object':
+            case 'function':
             {
                 const hookName = OPERATOR_HOOKS.OBJECTIFY;
                 const objectify = this.#expressionEventHooks[hookName];
@@ -197,11 +197,17 @@ class Evaluator {
                         );
                     }
 
+                    const rawValue1 = this.#getRawValue(operand1);
+                    const rawArgs = this.#getRawValue(operand2);
+
                     // call hook 시 (호출자, 인자 배열) 형태로 전달
-                    result = this.#handleHookError(()=>hook(operand1, operand2.args), expr);
+                    result = this.#handleHookError(()=>hook(rawValue1, rawArgs), expr);
                 }
-                else {
-                    result = this.#handleHookError(()=>hook(operand1, operand2), expr);
+                else {                    
+                    const rawValue1 = this.#getRawValue(operand1);
+                    const rawValue2 = this.#getRawValue(operand2);
+
+                    result = this.#handleHookError(()=>hook(rawValue1, rawValue2), expr);
                 }
 
                 if (
@@ -262,6 +268,20 @@ class Evaluator {
     #isParam(expr):expr is ParamExpression {
         return expr.type === ExpressionType.PARAM;
     }
+    #getRawValue(expr:AnyExpression) {
+        switch(expr.type) {
+            case ExpressionType.LITERAL:
+            case ExpressionType.OBJECT:
+                return expr.value;
+            case ExpressionType.PARAM:
+                return expr.args.map((ex)=>this.#getRawValue(ex));
+            default:
+                throw new InvalidASTFormatError(
+                    'Fail to parse raw value',
+                    expr
+                );
+        }
+    }
     #handleHookError(callback:()=>any, expr) {
         try {
             return callback();
@@ -273,11 +293,3 @@ class Evaluator {
 }
 
 export default Evaluator;
-
-// let result: any;
-// try {
-//     result = caller(operand1.value, operand2.value);
-// }
-// catch(e:any) {
-//     throw new HookError(e, expr);
-// }

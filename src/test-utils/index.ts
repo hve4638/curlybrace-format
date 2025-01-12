@@ -1,8 +1,17 @@
-import { CBFFail, CBFFailHint } from '../../errors';
-import { CBFErrorType } from '../../types';
+import { CBFFail, CBFFailHint } from "../errors";
+import { CBFErrorType } from "../types";
+
+export function getThrownError(callback:()=>any) {
+    try {
+        callback();
+    } catch (error) {
+        return error;
+    }
+    throw new Error('Expected error but no error was thrown');
+}
 
 export function expectCBFFail(
-    actualError:Error,
+    actualError:unknown,
     failType:CBFErrorType,
     hint:CBFFailHint
 ) {

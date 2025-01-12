@@ -1,5 +1,3 @@
-// export { CBFInternalErrors } from '../waitsrc/statementUtils'
+import CBFParser from './CBFParser';
 
-// export { CurlyBraceFormatParser } from './formatParser'
-// export type { ExpressionArgs, ExpressionEventHooks } from '../waitsrc/statementUtils'
-// export type { CurlyBraceFormatBuildArgs } from './interface'
+export default CBFParser;

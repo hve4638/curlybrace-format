@@ -1,5 +1,5 @@
 import { CBFFail, CBFFailHint } from '../../errors';
-import { CBF_ERROR_TYPE } from '../../types';
+import { CBFErrorType } from '../../types';
 import Evaluator from '../Evaluator';
 import { tokenize, transformToken, parseAST } from '../../expr-parse';
 import type { ExpressionArgs } from '../types/expr-hooks';
@@ -40,7 +40,7 @@ export function getThrownError(callback:()=>any) {
 
 export function expectCBFFail(
     actualError:unknown,
-    failType:CBF_ERROR_TYPE,
+    failType:CBFErrorType,
     hint:CBFFailHint
 ) {
     expect(actualError).toBeInstanceOf(CBFFail);

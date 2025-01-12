@@ -4,7 +4,7 @@ export const LITERAL_ACTIONS = {
     substract(a, b) { return a - b },
     multiply(a, b) { return a * b },
     divide(a, b) { return a / b },
-    module(a, b) { return a % b },
+    modulo(a, b) { return a % b },
     greaterOrEqual(a, b) { return a >= b },
     lessOrEqual(a, b) { return a <= b },
     greater(a, b) { return a > b },

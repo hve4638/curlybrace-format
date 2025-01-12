@@ -1,4 +1,4 @@
-import { AnyExpression, EvaluatableExpression } from '../../expr-parse/types/expressions';
+import { AnyExpression, EvaluatableExpression } from '../expr-parse/types/expressions';
 import { Fragment } from '../types/fragment';
 import { FragmentType } from './fragment';
 
@@ -9,7 +9,7 @@ export const NodeType = {
 } as const;
 type NodeType = typeof NodeType[keyof typeof NodeType];
 
-export type Node = SingleNode | Action | SequenceNode;
+export type CBFNode = SingleNode | Action | SequenceNode;
 
 export type SingleNode = {
     node_type : typeof NodeType.SINGLE;
@@ -23,19 +23,19 @@ export type SingleNode = {
     field : string;
 } | {
     type : typeof FragmentType.EXPRESSION;
-    expression : AnyExpression;
+    expression : EvaluatableExpression;
 });
 
 export const ActionType = {
     JUMP : 'JUMP',
     CONDITIONAL_JUMP : 'CONDITIONAL_JUMP',
+    JUMP_IF_ITERATE_DONE : 'JUMP_IF_ITERATE_DONE',
     BREAK : 'BREAK',
     SCOPE : 'SCOPE',
     ENTER_SCOPE : 'ENTER_SCOPE',
     EXIT_SCOPE : 'EXIT_SCOPE',
     ITERATE_INIT : 'ITERATE_INIT',
     ITERATE_NEXT : 'ITERATE_NEXT',
-
 } as const;
 export type ActionType = typeof ActionType[keyof typeof ActionType];
 export type Action = {
@@ -64,9 +64,13 @@ export type Action = {
     type : typeof ActionType.ITERATE_NEXT
     iterator_variable : string;
     result_variable : string;
+} | {
+    type : typeof ActionType.JUMP_IF_ITERATE_DONE,
+    iterator_variable : string;
+    jump_to : number;
 });
 
 export type SequenceNode = {
     node_type : typeof NodeType.SEQUENCE;
-    nodes : (Node|Action)[];
+    nodes : (CBFNode|Action)[];
 }

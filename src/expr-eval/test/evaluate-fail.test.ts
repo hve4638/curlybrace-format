@@ -15,13 +15,13 @@ import {
     expectCBFFail,
     getThrownError,
 } from './utils';
-import { CBF_ERROR_TYPE } from '../../types';
+import { CBFErrorType } from '../../types';
 
 const EMPTY_ARGS = {
     vars : {},
     expressionEventHooks : {},
     builtInVars:{},
-    currentScope : {}
+    scope : {}
 } as ExpressionArgs;
 
 describe('evaluate error', () => {
@@ -37,7 +37,7 @@ describe('evaluate error', () => {
         const e = getThrownError(()=>evaluate('num', EMPTY_ARGS))
         expectCBFFail(
             e,
-            CBF_ERROR_TYPE.IDENTIFIER_RESOLVE_FAIL,
+            CBFErrorType.IDENTIFIER_RESOLVE_FAIL,
             {
                 text : 'num',
                 positionBegin : 0,
@@ -50,7 +50,7 @@ describe('evaluate error', () => {
         const e = getThrownError(()=>evaluate(':chat', EMPTY_ARGS))
         expectCBFFail(
             e,
-            CBF_ERROR_TYPE.IDENTIFIER_RESOLVE_FAIL,
+            CBFErrorType.IDENTIFIER_RESOLVE_FAIL,
             {
                 text : ':chat',
                 positionBegin : 0,
@@ -75,11 +75,10 @@ describe('evaluate error', () => {
         const e = getThrownError(()=>evaluate('num()', args));
         expectCBFFail(
             e,
-            CBF_ERROR_TYPE.NO_HOOK,
+            CBFErrorType.NO_HOOK,
             {
-                // @TODO : 추후 () 가 아닌 call() 과 같이 전체 표현으로 변경 필요
                 text : '()',
-                positionBegin : 3,
+                positionBegin : 0,
                 positionEnd : 5,
             }
         );
@@ -101,7 +100,7 @@ describe('evaluate error', () => {
         const e = getThrownError(()=>evaluateAndStringify('num', args))
         expectCBFFail(
             e,
-            CBF_ERROR_TYPE.NO_HOOK,
+            CBFErrorType.NO_HOOK,
             {
                 text : args.vars.num.toString(),
                 positionBegin : 0,
@@ -114,7 +113,7 @@ describe('evaluate error', () => {
         const e = getThrownError(()=>evaluateAndIterate('5', EMPTY_ARGS))
         expectCBFFail(
             e,
-            CBF_ERROR_TYPE.OPERATOR_NOT_SUPPORTED,
+            CBFErrorType.OPERATOR_NOT_SUPPORTED,
             {
                 text : '5',
                 positionBegin : 0,

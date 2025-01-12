@@ -1,9 +1,20 @@
+import { CBFFail, CBFFailHint } from '../errors';
+import { CBFErrorType } from '../types';
 import { DirectiveKeywords, Fragment, FragmentType } from '../types/fragment';
+import {
+    type DirectiveStruct,
+    type ExpressionStruct,
+    splitByDirective,
+    splitByExpression,
+    parseDirective,
+    parseExpression,
+} from './utils';
 
-export const RE_DIRECTIVE_MARKER = /(\{\{::.*?\}\})/ms
-export const RE_DIRECTIVE = /\{\{\s*::\s*(\S+)(?:\s+(.*?))?\s*\}\}/ms
-export const RE_EXPRESSION_MARKER = /(\{\{[^{}]*?\}\})/ms
-export const RE_EXPRESSION = /\{\{\s*(.*?)\s*\}\}/ms
+type Hint = {
+    position: number;
+    size: number;
+    text: string;
+}
 
 class TemplateSplitter {
     #fragments:FragmentAdder = new FragmentAdder();
@@ -11,17 +22,21 @@ class TemplateSplitter {
     spliteTemplate(template: string):Fragment[] {
         this.#fragments = new FragmentAdder();
 
-        const splitted = template.split(RE_DIRECTIVE_MARKER);
+        let position = 0;
+        let size = 0;
+        const splitted = splitByDirective(template);
         for (const item of splitted) {
-            this.#parseDirectiveSplitted(item);
+            position += size;
+            size = item.length;
+            this.#parseDirectiveSplitted(item, {position, size, text:item});
         }
         return this.#fragments.result;
     }
 
-    #parseDirectiveSplitted(text: string) {
-        let group: RegExpMatchArray | null;
-        if (group = text.match(RE_DIRECTIVE)) {
-            this.#fragments.addDirective(group);
+    #parseDirectiveSplitted(text: string, hint:Hint) {
+        let directive: DirectiveStruct | null;
+        if (directive = parseDirective(text)) {
+            this.#fragments.addDirective(directive, hint);
         }
         else {
             // directive 문법 앞뒤의 공백은 제거
@@ -31,9 +46,9 @@ class TemplateSplitter {
 
             this.#fragments.addPosition(left.length);
 
-            const splitted = value.split(RE_EXPRESSION_MARKER);
+            const splitted = splitByExpression(value);
             for (const item of splitted) {
-                this.#parseExpressionSplitted(item);
+                this.#parseExpressionSplitted(item, hint);
             }
 
             this.#fragments.addPosition(right.length);
@@ -54,13 +69,13 @@ class TemplateSplitter {
         }
     }
 
-    #parseExpressionSplitted(text: string) {
-        let group: RegExpMatchArray | null;
-        if (group = text.match(RE_EXPRESSION)) {
-            this.#fragments.addExpression(group);
+    #parseExpressionSplitted(text: string, hint:Hint) {
+        let expression: ExpressionStruct | null;
+        if (expression = parseExpression(text)) {
+            this.#fragments.addExpression(expression, hint);
         }
         else {
-            this.#fragments.addText(text);
+            this.#fragments.addText(text, hint);
         }
     }
 }
@@ -87,34 +102,43 @@ class FragmentAdder {
         this.#position += fragment.full_text.length;
     }
 
-    addExpression(expressionMatch: RegExpMatchArray) {
-        const expression = expressionMatch[1] as string; // 내부 표현식
+    addExpression(expression: ExpressionStruct, hint:Hint) {
         
         this.#add({
             type : FragmentType.EXPRESSION,
-            full_text : expressionMatch[0],
-            expression_text : expression,
+            full_text : expression.full_text,
+            expression_text : expression.expression_text,
+            expression_text_left : expression.expression_text_left
         } as Fragment);
     }
 
-    addDirective(directiveMatch: RegExpMatchArray) {
-        const keyword = directiveMatch[1]?.toUpperCase() as string;
-        const field = directiveMatch[2] as string;
+    addDirective(directive: DirectiveStruct, hint:Hint) {
+        const keyword = directive.keyword.toUpperCase();
         
         if (keyword in DirectiveKeywords) {
             this.#add({
                 type : FragmentType.DIRECTIVE,
-                full_text : directiveMatch[0],
+                full_text : directive.full_text,
                 keyword : keyword as DirectiveKeywords,
-                field : field,
+                keyword_left : directive.keyword_left,
+                field : directive.field,
+                field_left : directive.field_left,
             } as Fragment);
         }
         else {
-            throw new Error(`Invalid keyword '${keyword}'`);
+            throw new CBFFail(
+                `Unknown directive keyword : '${keyword}'`,
+                CBFErrorType.UNKNOWN_DIRECTIVE,
+                {
+                    positionBegin : hint.position,
+                    positionEnd : hint.position + hint.size,
+                    text : hint.text
+                }
+            );
         }
     }
     
-    addText(text: string) {
+    addText(text: string, hint:Hint) {
         if (text.length === 0) return;
 
         this.#add({

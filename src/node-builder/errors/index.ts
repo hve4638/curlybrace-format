@@ -1,9 +1,9 @@
-import { CBFFail, CBFFailHint } from "../../../errors";
-import { CBF_ERROR_TYPE } from "../../../types";
+import { CBFFail, CBFFailHint } from "../../errors";
+import { CBFErrorType } from "../../types";
 import { Fragment } from "../../types/fragment";
 
 export class BuildError extends CBFFail {
-    constructor(message:string, errorType:CBF_ERROR_TYPE, fragment:Fragment) {
+    constructor(message:string, errorType:CBFErrorType, fragment:Fragment) {
         let hint:CBFFailHint;
         try {
             hint = {

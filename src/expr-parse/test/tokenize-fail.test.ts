@@ -1,5 +1,5 @@
 import { tokenize } from '../';
-import { CBF_ERROR_TYPE } from '../../types';
+import { CBFErrorType } from '../../types';
 import { expectCBFFail } from './utils';
 
 describe('Tokenizer Error Test', () => {
@@ -11,7 +11,7 @@ describe('Tokenizer Error Test', () => {
         catch (e: any) {
             expectCBFFail(
                 e,
-                CBF_ERROR_TYPE.INVALID_TOKEN,
+                CBFErrorType.INVALID_TOKEN,
                 {
                     text: '1a',
                     positionBegin: 0,
@@ -31,7 +31,7 @@ describe('Tokenizer Error Test', () => {
         catch (e: any) {
             expectCBFFail(
                 e,
-                CBF_ERROR_TYPE.INVALID_TOKEN,
+                CBFErrorType.INVALID_TOKEN,
                 {
                     text: '@',
                     positionBegin: 2,
