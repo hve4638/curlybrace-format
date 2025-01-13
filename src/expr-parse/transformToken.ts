@@ -9,10 +9,9 @@ import {
 import type {
     Token, TokenType
 } from './types/token';
-import { CBFFail, CBFLogicError } from '../errors';
-import { InvalidTokenError, MultipleExpressionError, TokenMissingError, TransfromPostfixFail } from './errors';
-
-const UNKNOWN_HINT = {} as any;
+import { CBFFail } from '../errors';
+import { InternalError } from './errors/internal';
+import { CBFErrorType } from '../types';
 
 function transformToken(tokens:RawToken[]):Token[] {
     const stacks = new TokenStacks();
@@ -43,7 +42,7 @@ function transformToken(tokens:RawToken[]):Token[] {
                     stacks.addOperator('[', false, { position, size });
                 }
                 else if (token.value === ']') {
-                    const beginIndexor = stacks.moveOperatorUntilChar('[');
+                    const beginIndexor = stacks.moveOperatorUntilChar('[', CBFErrorType.MISSING_OPEN_INDEXOR);
                     stacks.add(Tokens.operator('[]', {
                         position : beginIndexor.position,
                         size : size + position - beginIndexor.position,
@@ -58,9 +57,9 @@ function transformToken(tokens:RawToken[]):Token[] {
             case 'DELIMITER':
                 // ',' 는 함수 인자 구분자로만 사용
                 if (stacks.lastParenType !== ParenType.FUNCTION) {
-                    throw new MultipleExpressionError(
+                    throw new InternalError(
                         'Multiple value in a single expression are not allowed',
-                        UNKNOWN_HINT
+                        CBFErrorType.MULTIPLE_EXPRESSION
                     );
                 }
                 break;
@@ -81,13 +80,16 @@ function transformToken(tokens:RawToken[]):Token[] {
             case 'SPACE':
                 break;
             default:
-                throw new InvalidTokenError('Invalid Token', UNKNOWN_HINT);
+                throw new InternalError(
+                    'Invalid Token',
+                    CBFErrorType.INVALID_TOKEN
+                );
             }
         }
         catch(e:unknown) {
             if (e instanceof CBFFail) {
                 const text = token.value;
-                throw new TransfromPostfixFail(
+                throw new CBFFail(
                     e.message,
                     e.type,
                 {
@@ -143,19 +145,20 @@ class TokenStacks {
             this.addOperator('(', true, hint);
         }
         else {
-            throw new CBFLogicError(
+            // addOpenParen() 호출 전 반드시 parenType이 지정되어야 함
+            throw new InternalError(
                 'Logic Error (SyntaxTokenStacks.addOpenParen)',
-                UNKNOWN_HINT,
+                CBFErrorType.LOGIC_ERROR,
             )
         }
     }
     addCloseParen(hint:{position:number, size:number}):void {
         const parenType = this.#parenStack.pop();
         if (parenType === ParenType.EXPRESSION) {
-            this.moveOperatorUntilChar('(');
+            this.moveOperatorUntilChar('(', CBFErrorType.MISSING_OPEN_PAREN);
         }
         else if (parenType === ParenType.FUNCTION) {
-            const beginParen = this.moveOperatorUntilChar('(');
+            const beginParen = this.moveOperatorUntilChar('(', CBFErrorType.MISSING_OPEN_PAREN);
             const parenHint = {
                 position: beginParen.position,
                 size: hint.position + hint.size - beginParen.position,
@@ -164,9 +167,10 @@ class TokenStacks {
             this.#moveOperator();
         }
         else {
-            throw new CBFLogicError(
-                `Logic Error (SyntaxTokenStacks.addCloseParen) : ParenType '${parenType}'`,
-                UNKNOWN_HINT,
+            // '(' 토큰에서 parenType이 지정되므로 '('가 없는 경우 발생
+            throw new InternalError(
+                `Could not find matching '('`,
+                CBFErrorType.MISSING_OPEN_PAREN,
             )
         }
     }
@@ -197,16 +201,16 @@ class TokenStacks {
 
     // 타겟 operator를 찾을 때까지 operatorStack -> resultStack으로 이동
     // 타겟 operator는 추가되지 않고 반환
-    moveOperatorUntilChar(target:string) {
+    moveOperatorUntilChar(target:string, errorTypeWhenThrow:CBFErrorType) {
         while (!this.#isOperatorStackEmpty() && this.#topOperatorStack().operator !== target) {
             this.#moveOperator();
         }
         
         if (this.#isOperatorStackEmpty()) {
             // char를 찾지 못한 경우
-            throw new TokenMissingError(
+            throw new InternalError(
                 `Token '${target}' not found`,
-                UNKNOWN_HINT,
+                errorTypeWhenThrow,
             );
         }
         else {

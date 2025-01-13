@@ -1,10 +1,10 @@
-import { tokenize, transformToken } from '../';
+import { tokenize, transformToken } from '..';
 import { Tokens } from '../Tokens';
 
 const transform = (expressionText:string) => {
     return transformToken(tokenize(expressionText));
 }
-describe('trnasform-postfix test', () => {
+describe('transform-postfix test', () => {
     test('number', ()=>{
         const actual = transform('1 + 2 - 3');
         const expected = [

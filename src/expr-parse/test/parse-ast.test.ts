@@ -2,19 +2,13 @@ import {
     tokenize,
     transformToken,
     parseAST,
-} from '..';
+} from '../';
+import { generateAST } from './utils';
 import { Tokens } from '../Tokens';
 
 describe('ExpressionParser Test', () => {
-    const parse = (expressionText:string) => {
-        const tokens = tokenize(expressionText);
-        const transformed = transformToken(tokens);
-        const ast = parseAST(transformed);
-        return ast;
-    }
-
     test('add expr', ()=>{
-        const actual = parse('1 + 2');
+        const actual = generateAST('1 + 2');
         const expected = callExpr(
             '+',
             [
@@ -26,7 +20,7 @@ describe('ExpressionParser Test', () => {
         expect(actual).toEqual(expected);
     });
     test('combine expr', ()=>{
-        const actual = parse('1 + 2 * 3 - 4');
+        const actual = generateAST('1 + 2 * 3 - 4');
         const expected = callExpr('-',
             [
                 callExpr('+',
@@ -49,7 +43,7 @@ describe('ExpressionParser Test', () => {
         expect(actual).toEqual(expected);
     });
     test('function', ()=>{
-        const actual = parse('function()');
+        const actual = generateAST('function()');
         const expected = callExpr('()',
             [
                 Tokens.identifier('function', { position: 0, size: 8 }),
@@ -60,7 +54,7 @@ describe('ExpressionParser Test', () => {
         expect(actual).toEqual(expected);
     });
     test('function with param', ()=>{
-        const actual = parse('function(1, 2 + 3)');
+        const actual = generateAST('function(1, 2 + 3)');
         const expected = callExpr('()',
             [
                 Tokens.identifier('function', { position: 0, size: 8 }),
@@ -81,7 +75,7 @@ describe('ExpressionParser Test', () => {
         expect(actual).toEqual(expected);
     });
     test('indexor', ()=>{
-        const actual = parse('array[1+2]');
+        const actual = generateAST('array[1+2]');
         const expected = callExpr('[]',
             [
                 Tokens.identifier('array', { position: 0, size: 5 }),
@@ -98,7 +92,7 @@ describe('ExpressionParser Test', () => {
         expect(actual).toEqual(expected);
     });
     test('access', ()=>{
-        const actual = parse('object.key');
+        const actual = generateAST('object.key');
         const expected = callExpr('.',
             [
                 Tokens.identifier('object', { position: 0, size: 6 }),
@@ -109,7 +103,7 @@ describe('ExpressionParser Test', () => {
         expect(actual).toEqual(expected);
     });
     test('chain : access, call', ()=>{
-        const actual = parse('data.get()');
+        const actual = generateAST('data.get()');
         const expected = callExpr('()',
             [
                 callExpr('.',
@@ -126,7 +120,7 @@ describe('ExpressionParser Test', () => {
         expect(actual).toEqual(expected);
     })
     test('chain : access, call, indexor', ()=>{
-        const actual = parse('data.get()[1][2]');
+        const actual = generateAST('data.get()[1][2]');
         const expected = callExpr('[]',
             [
                 callExpr('[]',

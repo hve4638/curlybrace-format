@@ -1,9 +1,8 @@
-import type { CBFFailHint } from '../../errors';
 import { AnyExpression, ParamExpression } from '../../expr-parse/types/expressions';
 import { CBFErrorType } from '../../types';
-import EvaluateFail from './EvaluateFail';
+import CBFEvalFail from './CBFEvalFail';
 
-export class NoHookError extends EvaluateFail {
+export class NoHookError extends CBFEvalFail {
     constructor(hookName:string, expr: Exclude<AnyExpression, ParamExpression>) {
         super(
             `No hook found for '${hookName}'`,
@@ -14,7 +13,7 @@ export class NoHookError extends EvaluateFail {
     }
 }
 
-export class HookError extends EvaluateFail {
+export class HookError extends CBFEvalFail {
     constructor(error:Error, expr: Exclude<AnyExpression, ParamExpression>) {
         super(
             `${error.name} in hook : '${error.message}'`,
@@ -25,14 +24,14 @@ export class HookError extends EvaluateFail {
     }
 }
 
-export class IdentifierResolveFail extends EvaluateFail {
+export class IdentifierResolveFail extends CBFEvalFail {
     constructor(message:string, expr: Exclude<AnyExpression, ParamExpression>) {
         super(message, CBFErrorType.IDENTIFIER_RESOLVE_FAIL, expr);
         this.name = 'IdentifierResolveFail';
     }
 }
 
-export class OperatorNotSupportedError extends EvaluateFail {
+export class OperatorNotSupportedError extends CBFEvalFail {
     constructor(operator:string, expr: Exclude<AnyExpression, ParamExpression>) {
         super(
             `Unsupport operator : '${operator}'`,
@@ -43,7 +42,7 @@ export class OperatorNotSupportedError extends EvaluateFail {
     }
 }
 
-export class InvalidASTFormatError extends EvaluateFail {
+export class InvalidASTFormatError extends CBFEvalFail {
     constructor(message:string, expr: Exclude<AnyExpression, ParamExpression>) {
         super(message, CBFErrorType.INVALID_AST_FORMAT, expr);
         this.name = 'InvalidASTFormatError';

@@ -1,4 +1,5 @@
-import { InvalidCallExpressionFormatError, InvalidOperandError, NoExpressionError, UnhandleExpressionRemainError } from './errors';
+import { CBFFail } from '../errors';
+import { CBFErrorType } from '../types';
 import {
     ExpressionType,
     EvaluatableExpression,
@@ -48,20 +49,28 @@ class ASTParser {
             return this.#output[0] as EvaluatableExpression;
         }
         else if (this.#output.length === 0) {
-            throw new NoExpressionError('Invalid expression', {
-                positionBegin: 0,
-                positionEnd: 0,
-                text: '',
-            });
+            throw new CBFFail(
+                'empty expression',
+                CBFErrorType.NO_EXPRESSION,
+                {
+                    positionBegin: 0,
+                    positionEnd: 0,
+                    text: '',
+                }
+            );
         }
         else {
             // 여러 표현식 리턴시 이곳에 도달
             // 정상적인 입력의 경우 이곳에 도달하지 않음
-            throw new UnhandleExpressionRemainError('Unhandled token remaining', {
-                positionBegin: 0,
-                positionEnd: 0,
-                text: '',
-            });
+            throw new CBFFail(
+                'unprocessed expression remaining',
+                CBFErrorType.UNPROCESSED_EXPRESSION_REMAIN,
+                {
+                    positionBegin: 0,
+                    positionEnd: 0,
+                    text: '',
+                }
+            );
         }
     }
 
@@ -73,18 +82,28 @@ class ASTParser {
         const operand1 = this.#output.pop() as EvaluatableExpression;
         
         if (operand1 == null || operand2 == null) {
-            throw new InvalidOperandError(`Invalid operand (null)`,{
-                text: token.value,
-                positionBegin: token.position,
-                positionEnd: token.position + token.size,
-            });
+            throw new CBFFail(
+                `Invalid formula : missing operand`,
+                CBFErrorType.INVALID_FORMULA,
+                {
+                    text: token.value,
+                    positionBegin: token.position,
+                    positionEnd: token.position + token.size,
+                }
+            );
         }
         else if (operand2.type === TokenType.PARAM) {
-            throw new InvalidOperandError(`Invalid operand : right operand is param`, {
-                positionBegin: operand2.position,
-                positionEnd: operand2.position + operand2.size,
-                text: '',
-            });
+            // 1 + (1,2) 의 형태이나 이전 transformToken에서 '(1,2)' 과 같은 식을 허용하지 않으므로
+            // 정상 흐름에서 발생하지 않음
+            throw new CBFFail(
+                `Invalid operand : right operand is param`, 
+                CBFErrorType.INVALID_OPERAND,
+                {
+                    positionBegin: operand2.position,
+                    positionEnd: operand2.position + operand2.size,
+                    text: '',
+                }
+            );
         }
         if (token.value === '.') {
             // access 연산의 operand2는 토크나이저에서 IDENTIFIER로 분류하지만
@@ -98,8 +117,9 @@ class ASTParser {
                 } as LiteralExpression;
             }
             else {
-                throw new InvalidOperandError(
-                    `Invalid operand : right operand '${operand2.value}' is not identifier`,
+                throw new CBFFail(
+                    `right operand '${operand2.value}' is not identifier`,
+                    CBFErrorType.INVALID_ACCESSOR,
                 {
                     positionBegin: token.position,
                     positionEnd: token.position + token.size,
@@ -134,9 +154,11 @@ class ASTParser {
 
         if (this.#output.length == 0) {
             // PARAM 토큰 누락시
+            // 정상 흐름(tokenize->transfromToken)을 통해 전달된 입력을 통해서는 발생하지 않음
 
-            throw new InvalidCallExpressionFormatError(
-                'Invalid CallExpression format',
+            throw new CBFFail(
+                'Missing PARAM token',
+                CBFErrorType.MISSING_PARAM_TOKEN,
                 {
                     text: token.value,
                     positionBegin: token.position,

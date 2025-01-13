@@ -23,7 +23,9 @@
         "skipLibCheck": true, /* Skip type checking all .d.ts files. */
         "declaration": true,
         "declarationDir": "./dist",
-        "declarationMap": false
+        "declarationMap": false,
+
+        "baseUrl" : "src"
     },
     "include": [
         "./src/**/*"

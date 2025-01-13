@@ -1,10 +1,11 @@
+import { CBFFail } from '../errors';
+import { CBFErrorType } from '../types';
 import {
     TOKEN_PATTERNS,
     INVALID_TOKEN_PATTERNS,
     RawTokenType,
     RawToken,
 } from './types/tokenize';
-import { InvalidTokenError } from './errors';
 
 // 토크나이저
 // 표현식을 최소 단위로 쪼개어 토큰화
@@ -23,8 +24,9 @@ function tokenize(expressionText:string):RawToken[] {
             if (match) {
                 const text = match[0];
 
-                throw new InvalidTokenError(
+                throw new CBFFail(
                     'Invalid token',
+                    CBFErrorType.INVALID_TOKEN,
                     {
                         text,
                         positionBegin : position,
@@ -51,8 +53,9 @@ function tokenize(expressionText:string):RawToken[] {
         if (!match) {
             const text = expressionText[position];
 
-            throw new InvalidTokenError(
+            throw new CBFFail(
                 'Invalid token',
+                CBFErrorType.INVALID_TOKEN,
                 {
                     text,
                     positionBegin : position,

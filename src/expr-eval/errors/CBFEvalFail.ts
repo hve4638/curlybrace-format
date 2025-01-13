@@ -2,7 +2,7 @@ import { CBFFail, CBFFailHint } from '../../errors';
 import { CBFErrorType } from '../../types';
 import { FailExpression } from './types';
 
-class EvaluateFail extends CBFFail {
+class CBFEvalFail extends CBFFail {
     constructor(message: string, type:CBFErrorType, expr: FailExpression) {
         let text:string;
         try {
@@ -17,8 +17,8 @@ class EvaluateFail extends CBFFail {
             positionBegin : expr.position,
             positionEnd : expr.position + expr.size,
         });
-        this.name = 'EvaluateFail';
+        this.name = 'CBFEvalFail';
     }
 }
 
-export default EvaluateFail;
+export default CBFEvalFail;

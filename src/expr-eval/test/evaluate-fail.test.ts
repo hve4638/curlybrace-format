@@ -1,5 +1,5 @@
 import {
-    EvaluateFail,
+    CBFEvalFail,
     NoHookError,
 } from '../errors';
 import { 
@@ -33,7 +33,7 @@ describe('evaluate error', () => {
         } as IdentifierExpression;
     }
 
-    test('no variable defined', () => {
+    test('IDENTIFIER_RESOLVE_FAIL : var', () => {
         const e = getThrownError(()=>evaluate('num', EMPTY_ARGS))
         expectCBFFail(
             e,
@@ -46,7 +46,7 @@ describe('evaluate error', () => {
         );
     });
     
-    test('invalid built-in variable', () => {
+    test('IDENTIFIER_RESOLVE_FAIL : built-in var', () => {
         const e = getThrownError(()=>evaluate(':chat', EMPTY_ARGS))
         expectCBFFail(
             e,
@@ -59,7 +59,7 @@ describe('evaluate error', () => {
         );
     });
 
-    test('no hook', () => {
+    test('NO_HOOK : call', () => {
         const args = {
             ...EMPTY_ARGS,
             vars : {
@@ -84,7 +84,7 @@ describe('evaluate error', () => {
         );
     });
 
-    test('no hook : stringify', () => {
+    test('NO_HOOK : stringify', () => {
         const args = {
             ...EMPTY_ARGS,
             vars : {
@@ -109,7 +109,9 @@ describe('evaluate error', () => {
         );
     });
 
-    test('try iterate literal', () => {
+    // literal의 경우 미리 정의된 내부 hook를 사용하며
+    // 지원하지 않는 연산자는 NO_HOOK대신 OPERATOR_NOT_SUPPORTED 예외를 발생시킴
+    test('OPERATOR_NOT_SUPPORTED : literal iterate', () => {
         const e = getThrownError(()=>evaluateAndIterate('5', EMPTY_ARGS))
         expectCBFFail(
             e,

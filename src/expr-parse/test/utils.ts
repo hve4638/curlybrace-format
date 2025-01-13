@@ -1,25 +1,19 @@
 import { CBFFail, CBFFailHint } from '../../errors';
 import { CBFErrorType } from '../../types';
+import parseAST from '../parseAST';
+import tokenize from '../tokenize';
+import transformToken from '../transformToken';
 
-export function expectCBFFail(
-    actualError:Error,
-    failType:CBFErrorType,
-    hint:CBFFailHint
-) {
-    expect(actualError).toBeInstanceOf(CBFFail);
-    if (actualError instanceof CBFFail) {
-        const actual = {
-            text : actualError.text,
-            type: actualError.type,
-            positionBegin : actualError.positionBegin,
-            positionEnd : actualError.positionEnd,
-        }
-        const expected = {
-            type: failType,
-            text : hint.text,
-            positionBegin : hint.positionBegin,
-            positionEnd : hint.positionEnd,
-        }
-        expect(actual).toEqual(expected);
-    }
+export function generateTransformedTokens(expressionText:string) {
+    const tokens = tokenize(expressionText);
+    const transformed = transformToken(tokens);
+    return transformed;
 }
+
+export function generateAST(expressionText:string) {
+    const tokens = tokenize(expressionText);
+    const transformed = transformToken(tokens);
+    const ast = parseAST(transformed);
+    return ast;
+}
+

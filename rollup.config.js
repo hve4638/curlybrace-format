@@ -1,3 +1,4 @@
+import alias from '@rollup/plugin-alias';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
@@ -24,5 +25,5 @@ export default {
     json(),
     typescript({ tsconfig: './tsconfig.json' }), // TypeScript 변환
     // terser(), // 코드 압축 (필요시 활성화)
-  ],
+  ]
 };

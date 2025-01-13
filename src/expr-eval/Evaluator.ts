@@ -17,7 +17,6 @@ import {
 } from '../expr-parse/types/expressions';
 import { ExpressionArgs, ExpressionEventHooks, OPERATOR_HOOKS, Vars } from './types/expr-hooks';
 import { LITERAL_ACTIONS } from './literal-actions';
-import { Tokens } from '../expr-parse/Tokens';
 
 class Evaluator {
     #vars:Vars;

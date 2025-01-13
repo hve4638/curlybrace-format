@@ -1,4 +1,4 @@
-export { default as EvaluateFail } from './EvaluateFail';
+export { default as CBFEvalFail } from './CBFEvalFail';
 export {
     NoHookError,
     HookError,
