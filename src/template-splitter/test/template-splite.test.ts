@@ -68,6 +68,24 @@ describe('TemplateSplite', () => {
         expect(actual).toEqual(expected);
     });
 
+    test('allow invalid directive', () => {
+        const template = '{{::TEST_INVALID}}';
+        const actual = splitter.spliteTemplate(template);
+        const expected:Fragment[] = [
+            {
+                type: FragmentType.DIRECTIVE,
+                full_text: '{{::TEST_INVALID}}',
+                keyword: 'TEST_INVALID',
+                keyword_left: '{{::',
+                field: '',
+                field_left: '{{::TEST_INVALID',
+                position: 0,
+                size: 18,
+            }
+        ]
+        expect(actual).toEqual(expected);
+    });
+
     test('expression', () => {
         const template = '{{ 1 + 2 * 3 }}';
         const actual = splitter.spliteTemplate(template);

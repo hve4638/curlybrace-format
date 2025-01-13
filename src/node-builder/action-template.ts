@@ -1,7 +1,7 @@
 import { EvaluatableExpression } from "../expr-parse";
 import { CBFNode, NodeType, ActionType } from "../types/node";
 
-const ActionTemplate = {
+export const ActionTemplate = {
     enterScope():CBFNode {
         return {
             node_type: NodeType.ACTION,
@@ -63,6 +63,3 @@ const ActionTemplate = {
         };
     }
 } as const;
-
-
-export default ActionTemplate;

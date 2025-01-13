@@ -1,5 +1,5 @@
 {
-  "name": "@hve/curlybrace-format",
+  "name": "@hve/cbf",
   "version": "1.0.0",
   "main": "./dist/bundle.cjs",
   "module": "./dist/bundle.mjs",

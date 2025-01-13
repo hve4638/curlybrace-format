@@ -13,10 +13,10 @@ describe('NodeBuilder', () => {
 
     test('unknown directive', () => {
         const text = 'text {{::BUG user}}'
-        const actual = getThrownError(() => build(text));
+        const result = build(text);
 
         expectCBFFail(
-            actual,
+            result.errors[0],
             CBFErrorType.UNKNOWN_DIRECTIVE,
             {
                 text : '{{::BUG user}}',
@@ -27,15 +27,52 @@ describe('NodeBuilder', () => {
     });
     test('invalid expression', () => {
         const text = 'text {{ 0a }}'
-        const actual = getThrownError(() => build(text));
+        const result = build(text);
 
         expectCBFFail(
-            actual,
+            result.errors[0],
             CBFErrorType.INVALID_TOKEN,
             {
                 text : '0a',
                 positionBegin : 8,
                 positionEnd : 10,
+            }
+        )
+    });
+    test('no endif', () => {
+        const text = 'text1 {{::IF 1 }} text2'
+        const result = build(text);
+
+        expectCBFFail(
+            result.errors[0],
+            CBFErrorType.MISSING_FRAGMENT,
+            {
+                text : '{{::IF 1 }}',
+                positionBegin : 6,
+                positionEnd : 17,
+            }
+        )
+    });
+    test('multiple error', () => {
+        const text = '{{ + }} {{ - }}'
+        const result = build(text);
+
+        expectCBFFail(
+            result.errors[0],
+            CBFErrorType.INVALID_TOKEN,
+            {
+                text : '+',
+                positionBegin : 3,
+                positionEnd : 4,
+            }
+        )
+        expectCBFFail(
+            result.errors[1],
+            CBFErrorType.INVALID_TOKEN,
+            {
+                text : '-',
+                positionBegin : 11,
+                positionEnd : 12,
             }
         )
     });

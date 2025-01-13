@@ -3,7 +3,8 @@ import { DirectiveFragment, DirectiveKeywords, ExpressionFragment, Fragment, Fra
 import { makeExpression } from '../expr-parse';
 import { BuildError } from './errors';
 import { CBFErrorType } from '../types';
-import ActionTemplate from './ActionTemplate';
+import { ActionTemplate } from './action-template';
+import { CBFFail } from '../errors';
 
 type DirectiveHandler = {
     [key: string]: (fragment: DirectiveFragment) => CBFNode | null;
@@ -11,6 +12,7 @@ type DirectiveHandler = {
 
 class NodeBuilder {
     #nodes: CBFNode[] = [];
+    #errors: CBFFail[] = [];
     #fragmentIter: FragmentIterator;
     #directiveHandler: DirectiveHandler;
 
@@ -33,20 +35,34 @@ class NodeBuilder {
         };
     }
 
-    build(fragments: Fragment[]): CBFNode[] {
+    build(fragments: Fragment[]): {nodes: CBFNode[], errors: CBFFail[]} {
         this.#nodes = [];
+        this.#errors = [];
         this.#fragmentIter = new FragmentIterator(fragments);
         while (true) {
             const fragment = this.#fragmentIter.next();
             if (!fragment) break;
 
-            const node = this.#parseFragment(fragment);
-            if (node) {
-                this.#nodes.push(node);
+            try {
+                const node = this.#parseFragment(fragment);
+                if (node) {
+                    this.#nodes.push(node);
+                }
+            }
+            catch (error) {
+                if (error instanceof CBFFail) {
+                    this.#errors.push(error);
+                }
+                else {
+                    throw error;
+                }
             }
         }
 
-        return this.#nodes;
+        return {
+            nodes: this.#nodes,
+            errors: this.#errors,
+        };
     }
 
     #parseFragment(fragment: Fragment, highPriorityHandler?: DirectiveHandler | undefined): CBFNode | null {
@@ -158,7 +174,7 @@ class NodeBuilder {
             if (!item) {
                 throw new BuildError(
                     `missing 'endif' directive`,
-                    CBFErrorType.MISSING_FRAGMENT,
+                    CBFErrorType.MISSING_ENDIF,
                     fragment
                 );
             }
@@ -264,7 +280,7 @@ class NodeBuilder {
             if (!item) {
                 throw new BuildError(
                     `missing 'endforeach' directive`,
-                    CBFErrorType.MISSING_FRAGMENT,
+                    CBFErrorType.MISSING_ENDFOREACH,
                     fragment
                 );
             }

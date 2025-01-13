@@ -1,5 +1,3 @@
-import exp from 'constants';
-import CBFParser from '../CBFParser';
 import { buildPrompt, promptFragment } from './utils';
 
 const builtInVars = {
@@ -153,7 +151,35 @@ describe('CbfParser', () => {
         expect(actual).toEqual(expected);
     });
 
-    test('array', () => {
+    test('preserve whitespace', () => {
+        const text = `
+        {{::ROLE user }}
+            {{:blank}} text {{:blank}}
+        {{::ROLE bot }}
+            {{:nl}} text {{:nl}}
+        `;
+        const actual = buildPrompt(text, {
+            builtInVars, hook,
+            vars: {
+                list : [
+                    { role : 'bot', text : 'text1' },
+                    { role : 'user', text : 'text2' },
+                ]
+            },
+        });
+        const expected = [
+            promptFragment('user', [
+                ' text ',
+            ]),
+            promptFragment('bot', [
+                '\n text \n',
+            ]),
+        ];
+
+        expect(actual).toEqual(expected);
+    });
+
+    test('array indexor', () => {
         const text = `value : {{ arr[1] }}`;
         const actual = buildPrompt(text, {
             builtInVars, hook,

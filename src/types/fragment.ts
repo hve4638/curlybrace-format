@@ -32,7 +32,7 @@ export type ExpressionFragment = FragmentRequired &{
 }
 export type DirectiveFragment = FragmentRequired & {
     type : typeof FragmentType.DIRECTIVE;
-    keyword : DirectiveKeywords;
+    keyword : string; // DirectiveKeywords 만 올 수 있으나, 중간 과정(TemplateSplitter)까지는 유효성 검사를 하지 않음
     field : string;
     keyword_left : string;
     field_left : string;

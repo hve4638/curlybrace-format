@@ -103,7 +103,6 @@ class FragmentAdder {
     }
 
     addExpression(expression: ExpressionStruct, hint:Hint) {
-        
         this.#add({
             type : FragmentType.EXPRESSION,
             full_text : expression.full_text,
@@ -115,27 +114,14 @@ class FragmentAdder {
     addDirective(directive: DirectiveStruct, hint:Hint) {
         const keyword = directive.keyword.toUpperCase();
         
-        if (keyword in DirectiveKeywords) {
-            this.#add({
-                type : FragmentType.DIRECTIVE,
-                full_text : directive.full_text,
-                keyword : keyword as DirectiveKeywords,
-                keyword_left : directive.keyword_left,
-                field : directive.field,
-                field_left : directive.field_left,
-            } as Fragment);
-        }
-        else {
-            throw new CBFFail(
-                `Unknown directive keyword : '${keyword}'`,
-                CBFErrorType.UNKNOWN_DIRECTIVE,
-                {
-                    positionBegin : hint.position,
-                    positionEnd : hint.position + hint.size,
-                    text : hint.text
-                }
-            );
-        }
+        this.#add({
+            type : FragmentType.DIRECTIVE,
+            full_text : directive.full_text,
+            keyword : keyword as DirectiveKeywords,
+            keyword_left : directive.keyword_left,
+            field : directive.field,
+            field_left : directive.field_left,
+        } as Fragment);
     }
     
     addText(text: string, hint:Hint) {

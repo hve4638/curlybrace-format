@@ -10,7 +10,7 @@ describe('NodeBuilder', () => {
     const builder = new NodeBuilder();
     function build(text:string) {
         const fragments = splitter.spliteTemplate(text);
-        return builder.build(fragments);
+        return builder.build(fragments).nodes;
     }
 
     test('role', () => {

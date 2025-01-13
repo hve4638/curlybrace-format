@@ -9,8 +9,8 @@ export type PromptResult = {
 const parser = new CBFParser();
 
 export function buildPrompt(template:string, args:CBFParserExecuteArgs={ vars: {}, builtInVars: {}, hook: {} }):PromptResult[] {
-    const nodes = parser.build(template);
-    const gen = parser.execute(nodes, args);
+    const result = parser.build(template);
+    const gen = parser.execute(result.nodes, args);
 
     const results:PromptResult[] = [];
     for (const ele of gen) {
