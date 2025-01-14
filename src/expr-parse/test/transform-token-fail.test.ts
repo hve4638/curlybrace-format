@@ -60,4 +60,34 @@ describe('SyntaxTransform Test', () => {
             }
         )
     });
+    
+    test('MISSING_CLOSE_PAREN', ()=>{
+        const expressionText = '[a + b';
+
+        const e = getThrownError(()=>generateTransformedTokens(expressionText));
+        expectCBFFail(
+            e,
+            CBFErrorType.MISSING_CLOSE_PAREN,
+            {
+                text: '[',
+                positionBegin: 0,
+                positionEnd: 1,
+            }
+        )
+    });
+    
+    test('MISSING_CLOSE_INDEXOR', ()=>{
+        const expressionText = '(a + b';
+
+        const e = getThrownError(()=>generateTransformedTokens(expressionText));
+        expectCBFFail(
+            e,
+            CBFErrorType.MISSING_CLOSE_PAREN,
+            {
+                text: '(',
+                positionBegin: 0,
+                positionEnd: 1,
+            }
+        )
+    });
 });
